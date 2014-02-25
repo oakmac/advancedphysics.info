@@ -1,0 +1,15 @@
+/target
+/classes
+/checkouts
+/node_modules
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+.lein-deps-sum
+.lein-failures
+.lein-plugins
+.lein-repl-history
+
+resources/public/css/main.min.css
+resources/public/js/main.js

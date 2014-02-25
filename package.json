@@ -1,0 +1,13 @@
+{
+  "name": "advancedphysics.info",
+  "description": "advancedphysics.info",
+  "version": "0.0.1",
+  "dependencies": {
+    "grunt-contrib-less": "0.8.2",
+    "grunt-contrib-watch": "0.5.3",
+    "grunt-contrib-connect": "0.5.0"
+  },
+  "devDependencies": {
+    "grunt-express": "~1.2.1"
+  }
+}
