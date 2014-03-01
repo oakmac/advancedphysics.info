@@ -8,16 +8,17 @@
     [ap.util :as util]))
 
 (declare
-  current-page)
+  current-page
+  set-hash)
 
 ;;------------------------------------------------------------------------------
 ;; Pages
 ;;------------------------------------------------------------------------------
 
 (def pages {
-  :home {
-    :name "Home"
-    :init #(util/log "init homepage")
+  "waves-and-optics/fourier-analysis" {
+    :name "Fourier Analysis"
+    :init ap.pages.fourier.init
   }
 })
 
@@ -28,67 +29,54 @@
 (defn set-page-body [html]
   (dom/set-html "bodyContainer" html))
 
-(defn set-current-page [page]
-  (if (not= (keyword page) @current-page)
-    (swap! current-page #(keyword page))))
-
-(defn set-hash [page-key]
-  (aset (.-location js/window) "hash" (str "/" (name page-key))))
+(defn set-current-page [new-url]
+  (if (and (not= new-url @current-page) (get pages new-url))
+    (swap! current-page (fn [] new-url))))
 
 ;;------------------------------------------------------------------------------
 ;; Current Page Atom
 ;;------------------------------------------------------------------------------
 
-(def page-fade-speed-ms 120)
-
 (def current-page (atom nil))
 
-(defn show-new-page [new-page-key]
-  (let [page (get pages new-page-key)
-        init-fn (:init page)]
-    (set-page-body "")
-    (if init-fn
-      (init-fn))
-    (fade-in ($ "#bodyContainer") page-fade-speed-ms)))
+(defn change-current-page [_ _ old-page-url new-page-url]
+  (set-hash new-page-url)
+  (apply (:init (get pages new-page-url)) []))
 
-(defn change-current-page
-  [_ _ old-page-key new-page-key]
-  (set-hash new-page-key)
-  (if (and (:fade-page-transitions @y1.config.config) old-page-key)
-    (fade-out ($ "#bodyContainer")
-      page-fade-speed-ms
-      #(show-new-page new-page-key))
-    (apply (:init (get pages new-page-key)) [])))
-
-(add-watch current-page :current-page change-current-page)
+(add-watch current-page :_ change-current-page)
 
 ;;------------------------------------------------------------------------------
-;; Global Events
+;; URL Hash
 ;;------------------------------------------------------------------------------
 
-(defn get-hash-as-page-key []
-  (let [hash1 (.-hash (.-location js/window))
-        hash2 (.replace hash1 #"^#/" "")]
-    (keyword hash2)))
+(defn set-hash [url]
+  (aset (.-location js/window) "hash" (str "!" url)))
+
+(defn get-hash []
+  (let [url (.-hash (.-location js/window))]
+    (.replace url #"^#!" "")))
 
 (defn on-hash-changed []
-  (let [hash1 (get-hash-as-page-key)]
+  (let [hash1 (get-hash)]
     (cond
-      ;; if it's a valid page keyword and not the current page, switch
-      ;; to that page
+      ;; if it's a valid page and not the current page, switch to that page
       (and (get pages hash1) (not= hash1 @current-page))
         (set-current-page hash1)
-      ;; if it's not a valid page keyword, set the hash to the current page
+      ;; if it's not a valid page, set the hash to the current page
       (nil? (get pages hash1))
         (set-hash @current-page)
       ;; else it's already the current-page, do nothing
       :else nil)))
 
+;;------------------------------------------------------------------------------
+;; Global Events
+;;------------------------------------------------------------------------------
+
 (defn click-page-link [e]
   (.preventDefault e)
   (let [target-el (.-currentTarget e)
         page-id (.getAttribute target-el "data-page-id")]
-    (if (get pages (keyword page-id))
+    (if (get pages page-id)
       (set-current-page page-id))))
 
 (defn add-events []
@@ -101,8 +89,8 @@
 ;;------------------------------------------------------------------------------
 
 (defn init []
+  (prepend ($ "body") (html/init))
   (add-events)
-  ;; TODO: yee-haw!
-  )
+  (set-current-page "waves-and-optics/fourier-analysis"))
 
 (document-ready init)

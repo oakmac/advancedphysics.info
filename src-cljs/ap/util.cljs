@@ -57,3 +57,10 @@
     (cljs.reader/read-string
       (aget (.-localStorage js/window) key))
     (catch js/Error e nil)))
+
+;;------------------------------------------------------------------------------
+;; Flot Chart
+;;------------------------------------------------------------------------------
+
+(defn chart [sel data cfg]
+  (.plot js/jQuery sel (clj->js data) (clj->js cfg)))

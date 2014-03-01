@@ -1,0 +1,1 @@
+jQuery.prototype.plot = function(arg1) {};
