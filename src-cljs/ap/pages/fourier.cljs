@@ -38,6 +38,6 @@
 
 (defn init []
   (main/set-page-body (html/fourier))
-  (add-events)
   (init-charts)
-  (init-slider))
+  (init-slider)
+  (add-events))
