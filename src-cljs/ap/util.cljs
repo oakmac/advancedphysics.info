@@ -64,3 +64,10 @@
 
 (defn chart [sel data cfg]
   (.plot js/jQuery sel (clj->js data) (clj->js cfg)))
+
+;;------------------------------------------------------------------------------
+;; jQuery-UI Slider
+;;------------------------------------------------------------------------------
+
+(defn slider [sel cfg]
+  (.slider (js/jQuery sel) (clj->js cfg)))

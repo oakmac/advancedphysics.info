@@ -17,6 +17,7 @@
 ;;------------------------------------------------------------------------------
 
 (hiccups/defhtml fourier []
+  [:div#slider]
   [:div#chart1.big-14ff7]
   [:div
     [:div#chart2.small-85a5a]

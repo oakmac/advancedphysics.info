@@ -19,4 +19,7 @@
         :output-to "resources/public/js/main.js"
         :optimizations :advanced
         :pretty-print true
-        :externs ["externs/jquery-1.9.js" "externs/flot-0.8.2.js"]}}]})
+        :externs [
+          "externs/jquery-1.9.js"
+          "externs/flot-0.8.2.js"
+          "externs/jquery-ui-1.10.4.js"]}}]})
