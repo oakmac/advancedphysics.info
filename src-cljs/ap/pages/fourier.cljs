@@ -65,6 +65,9 @@
 
 (def x-points (map #(/ % 100) (range -314 314 1)))
 
+;; NOTE: I tried currying this function with a CLJS map and it was slower
+;;   than doing the calculation itself
+;; try a pure JS object next?
 (defn square-wave-cos-point [n x]
   (* (/ 4 (* n PI))
     (cos (* n x))))
@@ -73,6 +76,8 @@
   (into [] (map (fn [x]
     [x (square-wave-cos-point n x)]) x-points)))
 
+;; TODO: the result of the summation function here needs to be curried
+;;   for performance
 (defn square-wave-best-fit-point [n x]
   (let [r (range 1 (+ 1 n) 2)]
     (reduce + 0 (map-indexed (fn [idx n1]
@@ -101,7 +106,11 @@
 
 (defn square-wave-cos-series [n]
   { :color "blue"
-    :data (square-wave-cos-data n) })
+    :data (square-wave-cos-data n)
+    :lines {
+      :show (if (even? n) false true) ;; hide the cosine line when n is even
+    }
+  })
 
 (defn square-wave-best-fit-series [n]
   { :color "red"
