@@ -8,60 +8,106 @@
     [ap.util :as util]))
 
 (declare
-  create-data-series)
+  square-wave-series)
+
+;;------------------------------------------------------------------------------
+;; Constants
+;;------------------------------------------------------------------------------
+
+(def PI (aget js/Math "PI"))
 
 ;;------------------------------------------------------------------------------
 ;; Atoms
 ;;------------------------------------------------------------------------------
 
-(def x-value (atom 1))
+(def slider-value (atom 0))
 
-(defn on-change-x-value [_ _ _ new-x]
-  (.setData (aget js/window "fourier-chart-1") (create-data-series new-x))
-  (.draw (aget js/window "fourier-chart-1"))
-  nil
-  )
+(defn slider->n [slider-value]
+  (if (odd? slider-value)
+    (/ (- slider-value 1) 2)
+    (/ slider-value 2)))
 
-(add-watch x-value :_ on-change-x-value)
+(defn on-change-slider [_ _ _ new-slider-value]
+  (let [n (slider->n new-slider-value)]
+    (dom/set-html "slider-value" (str "slider = " new-slider-value))
+    (dom/set-html "n-value" (str "n = " n))
+    (.setData (aget js/window "fourier-chart-1") (square-wave-series n))
+    (.draw (aget js/window "fourier-chart-1"))
+    )
+  nil)
+
+(add-watch slider-value :_ on-change-slider)
 
 ;;------------------------------------------------------------------------------
 ;; Slider
 ;;------------------------------------------------------------------------------
 
 (defn on-slide [js-event js-ui]
-  (reset! x-value (.-value js-ui)))
+  (reset! slider-value (.-value js-ui)))
 
 (defn init-slider []
   (util/slider "#slider" {
-    :value @x-value
+    :value @slider-value
     :min 0
-    :max 10
+    :max 200
     :step 1
     :slide on-slide }))
+
+;;------------------------------------------------------------------------------
+;; Square Wave Series
+;;------------------------------------------------------------------------------
+
+(defn square-wave-cos-series [n]
+  (let [z (/ n 100)]
+  {
+  :color "blue"
+  :data [
+    [(* -1 PI) (- -1.2 z)]
+    [(/ (* -1 PI) 2) (+ -1.2 z)]
+    [(/ (* -1 PI) 2) (+ 1.2 z)]
+    [(/ PI 2) (+ 1.2 z)]
+    [(/ PI 2) (+ -1.2 z)]
+    [PI (- -1.2 z)]]}))
+
+(defn square-wave-sin-series [n]
+  (let [z (/ n 200)]
+  {
+  :color "yellow"
+  :data [
+    [(* -1 PI) (- -1.2 z)]
+    [(/ (* -1 PI) 2) (+ -1.2 z)]
+    [(/ (* -1 PI) 2) (+ 1.2 z)]
+    [(/ PI 2) (+ 1.2 z)]
+    [(/ PI 2) (+ -1.2 z)]
+    [PI (- -1.2 z)]]}))
+
+(def square-wave-reference-series {
+  :color "orange"
+  :data [
+    [(* -1 PI) -1]
+    [(/ (* -1 PI) 2) -1]
+    [(/ (* -1 PI) 2) 1]
+    [(/ PI 2) 1]
+    [(/ PI 2) -1]
+    [PI -1]]})
+
+(defn square-wave-series [n]
+  (clj->js [
+    square-wave-reference-series
+    (square-wave-cos-series n)
+    (square-wave-sin-series n)]))
 
 ;;------------------------------------------------------------------------------
 ;; Charts
 ;;------------------------------------------------------------------------------
 
-(defn create-data-series [x]
-  (clj->js [[[0 (* x 1)]
-    [1 (* x 1.2)]
-    [2 (* x 1.8)]
-    [3 (* x 2)]
-    [4 (* x 2.1)]
-    [5 (* x 3)]]]))
-
 (defn init-charts []
   (aset js/window "fourier-chart-1"
-    (util/chart "#chart1" (create-data-series @x-value) {
-      :yaxis {
-        :min -5
-        :max 50
-      }
-      }))
-  (util/chart "#chart2" [[[0 1] [1 2] [4 5]]] {})
-  (util/chart "#chart3" [[[0 1] [1 2] [4 5]]] {})
-  (util/chart "#chart4" [[[0 1] [1 2] [4 5]]] {}))
+    (util/chart "#chart1" (square-wave-series @slider-value) {}))
+  ;(util/chart "#chart2" [[[0 1] [1 2] [4 5]]] {})
+  ;(util/chart "#chart3" [[[0 1] [1 2] [4 5]]] {})
+  ;(util/chart "#chart4" [[[0 1] [1 2] [4 5]]] {})
+  )
 
 ;;------------------------------------------------------------------------------
 ;; Events
@@ -79,4 +125,5 @@
   (main/set-page-body (html/fourier))
   (init-charts)
   (init-slider)
-  (add-events))
+  (add-events)
+  (swap! slider-value identity))

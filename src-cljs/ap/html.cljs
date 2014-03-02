@@ -23,7 +23,9 @@
     [:div#chart3.small-85a5a]
     [:div#chart4.small-85a5a]
     [:div.clearfix-922e7]]
-  [:div#slider])
+  [:div#slider.slider-dca20]
+  [:div#slider-value]
+  [:div#n-value])
 
 ;;------------------------------------------------------------------------------
 ;; Application Shell
