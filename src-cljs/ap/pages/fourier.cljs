@@ -11,10 +11,16 @@
   square-wave-series)
 
 ;;------------------------------------------------------------------------------
-;; Constants
+;; Mathy
 ;;------------------------------------------------------------------------------
 
 (def PI (aget js/Math "PI"))
+
+(defn cos [x]
+  (.cos js/Math x))
+
+(defn sin [x]
+  (.sin js/Math x))
 
 ;;------------------------------------------------------------------------------
 ;; Atoms
@@ -49,37 +55,39 @@
   (util/slider "#slider" {
     :value @slider-value
     :min 0
-    :max 200
+    :max 100
     :step 1
     :slide on-slide }))
 
 ;;------------------------------------------------------------------------------
-;; Square Wave Series
+;; Square Wave Data
 ;;------------------------------------------------------------------------------
 
-(defn square-wave-cos-series [n]
-  (let [z (/ n 100)]
-  {
-  :color "blue"
-  :data [
-    [(* -1 PI) (- -1.2 z)]
-    [(/ (* -1 PI) 2) (+ -1.2 z)]
-    [(/ (* -1 PI) 2) (+ 1.2 z)]
-    [(/ PI 2) (+ 1.2 z)]
-    [(/ PI 2) (+ -1.2 z)]
-    [PI (- -1.2 z)]]}))
+(def x-points (map #(/ % 100) (range -314 314 1)))
 
-(defn square-wave-sin-series [n]
-  (let [z (/ n 200)]
-  {
-  :color "yellow"
-  :data [
-    [(* -1 PI) (- -1.2 z)]
-    [(/ (* -1 PI) 2) (+ -1.2 z)]
-    [(/ (* -1 PI) 2) (+ 1.2 z)]
-    [(/ PI 2) (+ 1.2 z)]
-    [(/ PI 2) (+ -1.2 z)]
-    [PI (- -1.2 z)]]}))
+(defn square-wave-cos-point [n x]
+  (* (/ 4 (* n PI))
+    (cos (* n x))))
+
+(defn square-wave-cos-data [n]
+  (into [] (map (fn [x]
+    [x (square-wave-cos-point n x)]) x-points)))
+
+(defn square-wave-best-fit-point [n x]
+  (let [r (range 1 (+ 1 n) 2)]
+    (reduce + 0 (map-indexed (fn [idx n1]
+      (if (odd? idx)
+        (* -1 (square-wave-cos-point n1 x))
+        (square-wave-cos-point n1 x))
+      ) r))))
+
+(defn square-wave-best-fit-data [n]
+  (into [] (map (fn [x]
+    [x (square-wave-best-fit-point n x)]) x-points)))
+
+;;------------------------------------------------------------------------------
+;; Square Wave Series
+;;------------------------------------------------------------------------------
 
 (def square-wave-reference-series {
   :color "orange"
@@ -91,11 +99,19 @@
     [(/ PI 2) -1]
     [PI -1]]})
 
+(defn square-wave-cos-series [n]
+  { :color "blue"
+    :data (square-wave-cos-data n) })
+
+(defn square-wave-best-fit-series [n]
+  { :color "red"
+    :data (square-wave-best-fit-data n) })
+
 (defn square-wave-series [n]
   (clj->js [
     square-wave-reference-series
     (square-wave-cos-series n)
-    (square-wave-sin-series n)]))
+    (square-wave-best-fit-series n)]))
 
 ;;------------------------------------------------------------------------------
 ;; Charts
