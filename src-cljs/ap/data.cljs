@@ -14,7 +14,6 @@
       (let [d2 (clj->js (create-fn))]
         (util/localstorage-set ls-key d2)
         (aset js/window ls-key d2))))
-  (util/js-log js/window)
   (next))
 
 (defn load-square-wave-data [next]

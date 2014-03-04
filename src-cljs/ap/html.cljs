@@ -19,8 +19,8 @@
 (hiccups/defhtml fourier []
   [:div#mainChart.big-14ff7]
   [:div
-    [:div#cosineChart.small-85a5a]
-    [:div#sinChart.small-85a5a]
+    [:div#cosCoefChart.small-85a5a]
+    [:div#sinCoefChart.small-85a5a]
     [:div#rmsChart.small-85a5a]
     [:div.clearfix-922e7]]
   [:div#slider.slider-dca20]

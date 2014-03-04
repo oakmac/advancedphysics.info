@@ -97,6 +97,16 @@
     {}
     (range 1 (+ 1 max-n-value) 1)))
 
+(defn cos-coefficient [n]
+  (/ 4 (* PI n)))
+
+(defn square-wave-cos-coef-points []
+  (into []
+    (map-indexed
+      (fn [idx n]
+        [n (* (if (odd? idx) -1 1) (cos-coefficient n))])
+      (range 1 (+ max-n-value) 2))))
+
 (defn line-diff [[x1 y1] [x2 y2]]
   (- y1 y2))
 
@@ -112,13 +122,13 @@
   (into []
     (map
       (fn [n] [n (square-wave-rms-point n)])
-      (range 1 (+ 1 max-n-value) 1))))
+      (range 1 (+ 1 max-n-value) 2))))
 
 (defn square-wave-page-data [] {
   :reference-line (square-wave-reference-line)
   :cosine-lines (square-wave-cos-lines)
   :best-fit-lines (square-wave-best-fit-lines)
-  ;:cos-coefficients ()
+  :cos-coef (square-wave-cos-coef-points)
   :rms (square-wave-rms-points)
   })
 

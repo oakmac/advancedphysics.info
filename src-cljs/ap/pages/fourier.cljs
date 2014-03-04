@@ -8,6 +8,7 @@
     [ap.util :as util]))
 
 (declare
+  cos-coef-series
   square-wave-series
   rms-series)
 
@@ -16,6 +17,15 @@
 ;;------------------------------------------------------------------------------
 
 (def max-n-value 50)
+
+;;------------------------------------------------------------------------------
+;; Charts
+;;------------------------------------------------------------------------------
+
+(def main-chart-id (util/uuid))
+(def cos-coef-chart-id (util/uuid))
+(def sin-coef-chart-id (util/uuid))
+(def rms-chart-id (util/uuid))
 
 ;;------------------------------------------------------------------------------
 ;; Atoms
@@ -32,10 +42,12 @@
   (let [n (slider->n new-slider-value)]
     (dom/set-html "slider-value" (str "slider = " new-slider-value))
     (dom/set-html "n-value" (str "n = " n))
-    (.setData (aget js/window "main-fourier-chart") (square-wave-series n))
-    (.draw (aget js/window "main-fourier-chart"))
-    (.setData (aget js/window "rms-fourier-chart") (rms-series n))
-    (.draw (aget js/window "rms-fourier-chart"))
+    (.setData (aget js/window main-chart-id) (square-wave-series n))
+    (.draw (aget js/window main-chart-id))
+    (.setData (aget js/window cos-coef-chart-id) (cos-coef-series n))
+    (.draw (aget js/window cos-coef-chart-id))
+    (.setData (aget js/window rms-chart-id) (rms-series n))
+    (.draw (aget js/window rms-chart-id))
     )
   nil)
 
@@ -82,6 +94,37 @@
     (square-wave-best-fit-series n)]))
 
 ;;------------------------------------------------------------------------------
+;; Cosine Coefficient
+;;------------------------------------------------------------------------------
+
+(defn cos-coef-series [n]
+  (clj->js [
+    {
+      :color "#ccc"
+      :lines {
+        :show false
+      }
+      :bars {
+        :show true
+      }
+      ; :yaxis {
+      ;   :min 0
+      ;   :max 0.5
+      ; }
+      :data (aget js/window "square-wave-data" "cos-coef")
+    }
+    {  
+      :color "blue"
+      :lines {
+        :show false
+      }
+      :bars {
+        :show true
+      }
+      :data (.slice (aget js/window "square-wave-data" "cos-coef") 0 n)
+    }]))
+
+;;------------------------------------------------------------------------------
 ;; RMS Series
 ;;------------------------------------------------------------------------------
 
@@ -117,9 +160,11 @@
 ;;------------------------------------------------------------------------------
 
 (defn init-charts []
-  (aset js/window "main-fourier-chart"
+  (aset js/window main-chart-id
     (util/chart "#mainChart" (square-wave-series @slider-value) {}))
-  (aset js/window "rms-fourier-chart"
+  (aset js/window cos-coef-chart-id
+    (util/chart "#cosCoefChart" (cos-coef-series @slider-value) {}))
+  (aset js/window rms-chart-id
     (util/chart "#rmsChart" (rms-series @slider-value) {}))
   )
 
