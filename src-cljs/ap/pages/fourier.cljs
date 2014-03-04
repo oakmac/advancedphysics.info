@@ -121,7 +121,8 @@
       :bars {
         :show true
       }
-      :data (.slice (aget js/window "square-wave-data" "cos-coef") 0 n)
+      :data (.slice (aget js/window "square-wave-data" "cos-coef")
+              0 (.ceil js/Math (/ n 2)))
     }]))
 
 ;;------------------------------------------------------------------------------

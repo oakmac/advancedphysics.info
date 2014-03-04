@@ -122,7 +122,7 @@
   (into []
     (map
       (fn [n] [n (square-wave-rms-point n)])
-      (range 1 (+ 1 max-n-value) 2))))
+      (range 1 (+ 1 max-n-value) 1))))
 
 (defn square-wave-page-data [] {
   :reference-line (square-wave-reference-line)
