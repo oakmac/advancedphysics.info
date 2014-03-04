@@ -8,19 +8,14 @@
     [ap.util :as util]))
 
 (declare
-  square-wave-series)
+  square-wave-series
+  rms-series)
 
 ;;------------------------------------------------------------------------------
-;; Mathy
+;; Constants
 ;;------------------------------------------------------------------------------
 
-(def PI (aget js/Math "PI"))
-
-(defn cos [x]
-  (.cos js/Math x))
-
-(defn sin [x]
-  (.sin js/Math x))
+(def max-n-value 50)
 
 ;;------------------------------------------------------------------------------
 ;; Atoms
@@ -37,8 +32,10 @@
   (let [n (slider->n new-slider-value)]
     (dom/set-html "slider-value" (str "slider = " new-slider-value))
     (dom/set-html "n-value" (str "n = " n))
-    (.setData (aget js/window "fourier-chart-1") (square-wave-series n))
-    (.draw (aget js/window "fourier-chart-1"))
+    (.setData (aget js/window "main-fourier-chart") (square-wave-series n))
+    (.draw (aget js/window "main-fourier-chart"))
+    (.setData (aget js/window "rms-fourier-chart") (rms-series n))
+    (.draw (aget js/window "rms-fourier-chart"))
     )
   nil)
 
@@ -55,83 +52,63 @@
   (util/slider "#slider" {
     :value @slider-value
     :min 0
-    :max 100
+    :max (* max-n-value 2)
     :step 1
     :slide on-slide }))
-
-;;------------------------------------------------------------------------------
-;; Square Wave Data
-;;------------------------------------------------------------------------------
-
-(def x-points (map #(/ % 100) (range -314 314 1)))
-
-;; NOTE: I tried currying this function with a CLJS map and it was slower
-;;   than doing the calculation itself
-;; try a pure JS object next?
-(defn square-wave-cos-point [n x]
-  (* (/ 4 (* n PI))
-    (cos (* n x))))
-
-(defn square-wave-cos-data [n]
-  (into [] (map (fn [x]
-    [x (square-wave-cos-point n x)]) x-points)))
-
-;; TODO: the result of the summation function here needs to be curried
-;;   for performance
-(defn square-wave-best-fit-point [n x]
-  (let [r (range 1 (+ 1 n) 2)]
-    (reduce + 0 (map-indexed (fn [idx n1]
-      (if (odd? idx)
-        (* -1 (square-wave-cos-point n1 x))
-        (square-wave-cos-point n1 x))
-      ) r))))
-
-(defn square-wave-best-fit-data [n]
-  (into [] (map (fn [x]
-    [x (square-wave-best-fit-point n x)]) x-points)))
 
 ;;------------------------------------------------------------------------------
 ;; Square Wave Series
 ;;------------------------------------------------------------------------------
 
-(def square-wave-reference-series {
+(defn square-wave-reference-series [] {
   :color "orange"
-  :data [
-    [(* -1 PI) -1]
-    [(/ (* -1 PI) 2) -1]
-    [(/ (* -1 PI) 2) 1]
-    [(/ PI 2) 1]
-    [(/ PI 2) -1]
-    [PI -1]]})
+  :data (aget js/window "square-wave-data" "reference-line")})
 
-(defn square-wave-cos-series [n]
-  { :color "blue"
-    :data (square-wave-cos-data n)
-    :lines {
-      :show (if (even? n) false true) ;; hide the cosine line when n is even
-    }
-  })
+(defn square-wave-cos-series [n] {
+  :color "blue"
+  :data (aget js/window "square-wave-data" "cosine-lines" (str n))
+  :lines {
+    ;; hide the cosine line when n is even
+    :show (not (even? n)) }})
 
-(defn square-wave-best-fit-series [n]
-  { :color "red"
-    :data (square-wave-best-fit-data n) })
+(defn square-wave-best-fit-series [n] {
+  :color "red"
+  :data (aget js/window "square-wave-data" "best-fit-lines" (str n))})
 
 (defn square-wave-series [n]
   (clj->js [
-    square-wave-reference-series
+    (square-wave-reference-series)
     (square-wave-cos-series n)
     (square-wave-best-fit-series n)]))
+
+;;------------------------------------------------------------------------------
+;; RMS Series
+;;------------------------------------------------------------------------------
+
+(defn rms-series [n]
+  (clj->js [{
+    :color "blue"
+    :lines {
+      :show false
+    }
+    :bars {
+      :show true
+    }
+    :yaxis {
+      :min 0
+      :max 0.5
+    }
+    :data (aget js/window "square-wave-data" "rms") }]))
 
 ;;------------------------------------------------------------------------------
 ;; Charts
 ;;------------------------------------------------------------------------------
 
 (defn init-charts []
-  (aset js/window "fourier-chart-1"
-    (util/chart "#chart1" (square-wave-series @slider-value) {}))
-  ;(util/chart "#chart2" [[[0 1] [1 2] [4 5]]] {})
-  ;(util/chart "#chart3" [[[0 1] [1 2] [4 5]]] {})
-  ;(util/chart "#chart4" [[[0 1] [1 2] [4 5]]] {})
+  (aset js/window "main-fourier-chart"
+    (util/chart "#mainChart" (square-wave-series @slider-value) {}))
+  (aset js/window "rms-fourier-chart"
+    (util/chart "#rmsChart" (rms-series @slider-value) {}))
   )
 
 ;;------------------------------------------------------------------------------
@@ -146,9 +123,12 @@
 ;; Page Init
 ;;------------------------------------------------------------------------------
 
-(defn init []
+(defn init2 []
   (main/set-page-body (html/fourier))
   (init-charts)
   (init-slider)
   (add-events)
   (swap! slider-value identity))
+
+(defn init []
+  (ap.data.load-square-wave-data init2))

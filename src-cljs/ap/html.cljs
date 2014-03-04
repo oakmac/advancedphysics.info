@@ -17,11 +17,11 @@
 ;;------------------------------------------------------------------------------
 
 (hiccups/defhtml fourier []
-  [:div#chart1.big-14ff7]
+  [:div#mainChart.big-14ff7]
   [:div
-    [:div#chart2.small-85a5a]
-    [:div#chart3.small-85a5a]
-    [:div#chart4.small-85a5a]
+    [:div#cosineChart.small-85a5a]
+    [:div#sinChart.small-85a5a]
+    [:div#rmsChart.small-85a5a]
     [:div.clearfix-922e7]]
   [:div#slider.slider-dca20]
   [:div#slider-value]

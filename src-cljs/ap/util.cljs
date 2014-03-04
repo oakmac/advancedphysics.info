@@ -46,16 +46,24 @@
 ;; Interface to localStorage
 ;;------------------------------------------------------------------------------
 
-(defn localstorage-set [key value]
-  (aset (.-localStorage js/window) key (pr-str value)))
+(defn localstorage-set-clj [k v]
+  (aset (.-localStorage js/window) k (pr-str v)))
 
-(defn localstorage-get
+(defn localstorage-get-clj
   "returns the Clojure data structure stored at key; nil if the key does not
   exit or is invalid EDN"
-  [key]
+  [k]
   (try
     (cljs.reader/read-string
-      (aget (.-localStorage js/window) key))
+      (aget (.-localStorage js/window) k))
+    (catch js/Error e nil)))
+
+(defn localstorage-set [k v]
+  (aset (.-localStorage js/window) k (.stringify js/JSON (clj->js v))))
+
+(defn localstorage-get [k]
+  (try
+    (.parse js/JSON (aget (.-localStorage js/window) k))
     (catch js/Error e nil)))
 
 ;;------------------------------------------------------------------------------
