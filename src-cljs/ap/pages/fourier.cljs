@@ -86,19 +86,31 @@
 ;;------------------------------------------------------------------------------
 
 (defn rms-series [n]
-  (clj->js [{
-    :color "blue"
-    :lines {
-      :show false
+  (clj->js [
+    {
+      :color "#ccc"
+      :lines {
+        :show false
+      }
+      :bars {
+        :show true
+      }
+      ; :yaxis {
+      ;   :min 0
+      ;   :max 0.5
+      ; }
+      :data (aget js/window "square-wave-data" "rms")
     }
-    :bars {
-      :show true
-    }
-    :yaxis {
-      :min 0
-      :max 0.5
-    }
-    :data (aget js/window "square-wave-data" "rms") }]))
+    {  
+      :color "blue"
+      :lines {
+        :show false
+      }
+      :bars {
+        :show true
+      }
+      :data (.slice (aget js/window "square-wave-data" "rms") 0 n)
+    }]))
 
 ;;------------------------------------------------------------------------------
 ;; Charts
