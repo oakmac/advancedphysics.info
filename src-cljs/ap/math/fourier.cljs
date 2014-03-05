@@ -124,13 +124,13 @@
       (fn [n] [n (square-wave-rms-point n)])
       (range 1 (+ 1 max-n-value) 1))))
 
-(defn square-wave-page-data [] {
+(defn square-wave-page-data [] (clj->js {
   :reference-line (square-wave-reference-line)
   :cosine-lines (square-wave-cos-lines)
   :best-fit-lines (square-wave-best-fit-lines)
   :cos-coef (square-wave-cos-coef-points)
   :rms (square-wave-rms-points)
-  })
+  }))
 
 ;;------------------------------------------------------------------------------
 ;; Sawtooth Wave
