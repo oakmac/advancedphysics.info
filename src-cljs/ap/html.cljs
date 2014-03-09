@@ -36,15 +36,17 @@
 ;;------------------------------------------------------------------------------
 
 (hiccups/defhtml fourier []
-  [:div#mainChart.big-14ff7]
-  [:div
-    [:div#cosCoefChart.small-85a5a]
-    [:div#sinCoefChart.small-85a5a]
-    [:div#rmsChart.small-85a5a]
+  [:div.charts-55f2b
+    [:div#mainChart.big-14ff7]
+    [:div.right-739cf
+      [:div#cosCoefChart.small-85a5a.push-3d1ce]
+      [:div#sinCoefChart.small-85a5a.push-3d1ce]
+      [:div#rmsChart.small-85a5a]]
     [:div.clearfix-922e7]]
   [:div#slider.slider-dca20]
-  [:div#n-value]
-  [:div#x-value]
+  [:div.legend-f6c57
+    [:div#n-value]
+    [:div#x-value]]
   [:div#equationsContainer.math-8cbb7])
 
 ;;------------------------------------------------------------------------------

@@ -33,7 +33,7 @@
 ;; Atoms
 ;;------------------------------------------------------------------------------
 
-(def n-value (atom 0))
+(def n-value (atom 1))
 (def x-value (atom nil))
 
 (defn on-change-n-value [_ _ _ new-n]
@@ -203,8 +203,29 @@
 
 (def main-chart-options {
   :grid {
+    :color "#e0e0e0"
+    :borderWidth {
+      :bottom 1, :left 1, :right 0, :top 0
+    }
     :hoverable true
-  }})
+  }
+  :legend {
+    :show false
+  }
+  :series {
+    :shadowSize 0
+  }
+  :xaxis {
+    :font {
+      :color "#444444"
+    }
+  }
+  :yaxis {
+    :font {
+      :color "#444444"
+    }
+  }  
+})
 
 (defn init-charts []
   (aset js/window main-chart-id
@@ -214,9 +235,9 @@
   (.bind (js/jQuery "#mainChart") "plothover" on-hover-main-chart)
   (on ($ "#mainChart") "mouseout" mouseout-main-chart)
   (aset js/window cos-coef-chart-id
-    (util/chart "#cosCoefChart" (cos-coef-series @n-value) {}))
+    (util/chart "#cosCoefChart" (cos-coef-series @n-value) main-chart-options))
   (aset js/window rms-chart-id
-    (util/chart "#rmsChart" (rms-series @n-value) {})))
+    (util/chart "#rmsChart" (rms-series @n-value) main-chart-options)))
 
 ;;------------------------------------------------------------------------------
 ;; Page Init
@@ -227,7 +248,8 @@
   (init-slider)
   (init-charts)
   (add-events)
-  (swap! n-value identity))
+  (swap! n-value identity)
+  (swap! x-value identity))
 
 (defn init []
   (ap.data.load-square-wave-data init2))
