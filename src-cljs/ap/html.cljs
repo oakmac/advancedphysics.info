@@ -20,10 +20,24 @@
   (= (mod (+ n 1) 4) 0))
 
 (hiccups/defhtml cosine-term [n]
+  (if (negative-term? n)
+    [:div.operator-8982f "&minus;"]
+    [:div.operator-8982f "&plus;"])
   [:div.term-6729f
-    (str
-      (if (negative-term? n) "- " "+ ")
-      "(4/" n "&pi;) cos(" n "x)")])
+    [:div.paren-8653a "("]]
+  [:div.term-6729f
+    [:div.numer-7e8e8 "4"]
+    [:div.divide-e2aa5]
+    [:div.denom-db17d (str (if (not= 1 n) n) "&pi;")]]
+  [:div.term-6729f
+    [:div.paren-8653a ")"]]
+  [:div.term-6729f
+    [:div.cos-d9121 "cos"]]
+)
+
+
+    ; (str
+    ;   "(4/" n "&pi;) cos(" n "x)")])
 
 (hiccups/defhtml cosine-terms [n]
   (map
